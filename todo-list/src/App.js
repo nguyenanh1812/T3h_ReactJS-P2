@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import './App.css';
 import AddToDo from './components/AddToDo';
 import ListToDo from './components/ListToDo';
@@ -20,6 +20,8 @@ function App() {
     },
   ])
 
+  // const [toDoList, setToDoList] = useState([JSON.parse(localStorage.getItem("key_toDo"))])
+
   const handleChange = (e) => {
     setToDo({
       name: e.target.value,
@@ -34,11 +36,12 @@ function App() {
         ...toDoList,
         toDo
       ])
-      console.log(toDoList)
+      localStorage.setItem("key_toDo", JSON.stringify([...toDoList, toDo]))
       setToDo({
         name: '',
         complete: false
       })
+      console.log(toDoList)
     }
     else {
       alert('Bạn chưa nhập công việc cần làm!')
@@ -47,21 +50,14 @@ function App() {
 
   const onChangeCompleteButtonClick = (item, index) => {
     console.log(item)
-    if (item.complete) {
-      toDoList.splice(index, 1, {
-        name: `${item.name}`,
-        complete: false
-      })
-    } else {
-      toDoList.splice(index, 1, {
-        name: `${item.name}`,
-        complete: true
-      })
-    }
+    toDoList.splice(index, 1, {
+      name: `${item.name}`,
+      complete: !item.complete
+    })
     setToDoList([
       ...toDoList
     ])
-
+    localStorage.setItem("key_toDo", JSON.stringify(toDoList))
   }
 
   const onRemoveButtonClick = (item, index) => {
@@ -72,10 +68,25 @@ function App() {
       setToDoList([...toDoList])
     }
     console.log(toDoList)
+    localStorage.setItem("key_toDo", JSON.stringify(toDoList))
   }
 
   //localstorage
-  // localStorage.setItem('keyToDO', JSON.stringify(toDoList))
+  // localStorage.setItem("key_toDO", JSON.stringify(toDoList))
+  // const a = localStorage.getItem('key_toDO')
+  // console.log(a)
+  // useEffect(()=> {
+  //   localStorage.setItem("key_toDo", JSON.stringify(toDoList))
+  // }, [toDoList])
+
+  //Gọi 1 lần khi component mounted để lấy local storage
+  useEffect(() => {
+    const storageTodoList = localStorage.getItem("key_toDo");
+    if (storageTodoList) {
+      setToDoList(JSON.parse(storageTodoList));
+      console.log('local', JSON.parse(storageTodoList))
+    }
+  }, [])
 
   return (
     <div className='text-center mt-5 w-50 m-auto'>
@@ -84,13 +95,13 @@ function App() {
         <p>Nhập văn bản vào ô input để thêm các mục vào danh sách của bạn.</p>
         <p>Nhấp vào " <i className="fas fa-trash"></i>" để xóa mục khỏi danh sách của bạn.</p>
         <p>
-          Nhấn vào <i className="fas fa-check-circle"></i> - <i className="fas fa-times-circle"></i> để danh mục chuyển trạng thái  <br/> 
+          Nhấn vào <i className="fas fa-check-circle"></i> - <i className="fas fa-times-circle"></i> để danh mục chuyển trạng thái  <br />
           Hoàn thành (<i className="fas fa-check-circle"></i>) - Chưa hoàn thành(<i className="fas fa-times-circle"></i>)
         </p>
       </div>
 
-      <AddToDo toDo={toDo} handleChange={handleChange} onAddButtonClick={onAddButtonClick}/>
-      <ListToDo list={toDoList} onChangeCompleteButtonClick={onChangeCompleteButtonClick} onRemoveButtonClick={onRemoveButtonClick}/>
+      <AddToDo toDo={toDo} handleChange={handleChange} onAddButtonClick={onAddButtonClick} />
+      <ListToDo list={toDoList} onChangeCompleteButtonClick={onChangeCompleteButtonClick} onRemoveButtonClick={onRemoveButtonClick} />
 
       {/* <div className='w-100 m-auto'>
         <div className='row mt-5'>
@@ -98,20 +109,20 @@ function App() {
             <input className="w-100 px-4 float-end h4" placeholder="Type to do..."
               style={{ outline: 'none', borderRadius: '20px', border: 'none', height: '60px' }}
               onChange={handleChange}
-              value={toDO.name} />
+              value={toDo.name} />
           </div>
           <div className='col-2'>
             <button style={{ fontSize: '28px' }} className="w-75 p-2 btn btn-outline-success float-start rounded-pill" type="button" id="button-addon2" onClick={onAddButtonClick}><i className="fas fa-plus"></i></button>
           </div>
         </div>
-      </div> */}
+      </div>
 
       
-      {/* <div className='d-flex'>
+      <div className='d-flex'>
         <div className='col-10 mx-2'>
           {toDoList.map((todo, index) => (
             // {let {name, complete} = todo}
-            <div key={index} className={`p-3 alert text-gray my-3 h6 row ${(todo.complete) ? 'alert-success' : 'alert-primary'}`} style={borderStyle}
+            <div key={index} className={`p-3 alert text-gray my-3 h6 row ${(todo.complete) ? 'alert-success' : 'alert-primary'}`} 
               // onClick={() => onChangeCompleteButtonClick(todo, index)}
             >
               <div className='col-10 d-flex justify-content-start align-items-center' style={{ paddingLeft: '50px' }}> {todo.name} </div>
